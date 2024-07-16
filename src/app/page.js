@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Topper from './components/Topper.jsx'
 import Leaderboard from './components/Leaderboard.jsx'
+import Problems from "./problems/page.jsx";
 
 export default function Home() {
   return (
@@ -12,6 +13,7 @@ export default function Home() {
         <Topper h={44} position={3} name="Emma Aria" score="1674" rank="3" />
       </div>
       <Leaderboard />
+      <Problems/>
     </div>
   );
 }

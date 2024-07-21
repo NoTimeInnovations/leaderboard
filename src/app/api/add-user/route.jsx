@@ -3,12 +3,35 @@ import { hashPassword } from '../../../utils/hash';
 import { signToken } from '../../../utils/jwt';
 
 const prisma = new PrismaClient();
-console.log('prisma', prisma);
 
 export async function POST(req) {
   const { username, email, password } = await req.json();
 
   try {
+    // Check if the username already exists
+    const existingUsername = await prisma.user.findFirst({
+      where: { username },
+    });
+
+    if (existingUsername) {
+      return new Response(JSON.stringify({ error: 'Username already exists. Please choose a different username.' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
+    // Check if the email already exists
+    const existingUseremail = await prisma.user.findFirst({
+      where: { email },
+    });
+
+    if (existingUseremail) {
+      return new Response(JSON.stringify({ error: 'Email already exists. Please log in or use a different email.' }), {
+        status: 400,
+        headers: { 'Content-Type': 'application/json' },
+      });
+    }
+
     // Check if the provided email and password match the admin credentials
     const isAdmin = email === process.env.ADMIN_EMAIL && password === process.env.ADMIN_PASSWORD;
     const role = isAdmin ? 'admin' : 'user';

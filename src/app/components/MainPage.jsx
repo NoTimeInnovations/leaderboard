@@ -9,6 +9,14 @@ import LoginForm from "./LoginForm";
 const MainPage = () => {
   const [isSignup, setIsSignup] = useState(false);
   const [isLogin, setIsLogin] = useState(false);
+  const [signupSuccess, setSignupSuccess] = useState(false);
+
+  const handleSignupSucess = (result) => {
+    setSignupSuccess(result);
+    setIsSignup(!isSignup);
+    setIsLogin(!isLogin);
+
+  }
   
   const router = useRouter();
 
@@ -63,11 +71,15 @@ const MainPage = () => {
           <div className="w-full max-w-xl p-5 bg-white">
             <div className="flex w-full justify-between">
               <div className="text-center text-xl font-bold mb-5">Sign Up</div>
-              <div className="rounded-xl cursor-pointer">
+              <div 
+              onClick={() => {
+                    setIsSignup(!isSignup);
+                }}
+                className="rounded-xl cursor-pointer">
                 Close
               </div>
             </div>
-            <SignUpForm />
+            { (<SignUpForm  handleSignupSucess={handleSignupSucess} />)}
             <div className="text-center mt-5">
                 Already have an account? <button onClick={() =>{ 
                     setIsLogin(!isLogin)

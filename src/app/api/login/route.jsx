@@ -2,6 +2,7 @@
 import { PrismaClient } from '@prisma/client';
 import { comparePassword } from '../../../utils/hash';
 import { signToken } from '../../../utils/jwt';
+import { cookies } from "next/headers";
 
 const prisma = new PrismaClient();
 
@@ -14,7 +15,7 @@ export async function POST(req) {
     });
 
     if (!user) {
-      return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
+      return new Response(JSON.stringify({ error: 'Invalid email ' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
@@ -23,13 +24,20 @@ export async function POST(req) {
     const isPasswordValid = await comparePassword(password, user.password);
 
     if (!isPasswordValid) {
-      return new Response(JSON.stringify({ error: 'Invalid email or password' }), {
+      return new Response(JSON.stringify({ error: 'Invalid password' }), {
         status: 401,
         headers: { 'Content-Type': 'application/json' },
       });
     }
 
-    const token = signToken({ userId: user.id });
+    const token = signToken({ userId: user.id, role: user.role });
+
+    const cookiesStore = cookies();
+    cookiesStore.set("token", token, {
+      httpOnly: true,
+      secure: true,
+      sameSite: "strict",
+    });
 
     return new Response(JSON.stringify({ message: 'Login successful', token }), {
       status: 200,

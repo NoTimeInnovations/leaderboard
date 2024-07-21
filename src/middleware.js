@@ -1,17 +1,26 @@
 import { NextResponse } from 'next/server';
 import { verifyToken } from './utils/jwt';
+import { cookies } from "next/headers";
+import {jwtVerify} from 'jose';
 
-export function middleware(req) {
-  const token = req.headers.get('authorization')?.split(' ')[1];
 
-  if (!token) {
-    return NextResponse.redirect(new URL('/login', req.url));
+export async function middleware(req) {
+  const token = req.cookies.get('token').value;
+  console.log(token);
+
+  if(token){
+    const secret = new TextEncoder().encode(process.env.JWT_SECRET);
+    const {payload} = await jwtVerify(token, secret);
+    console.log(payload)
+  }
+  else{
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
   const decodedToken = verifyToken(token);
 
   if (!decodedToken) {
-    return NextResponse.redirect(new URL('/login', req.url));
+    return NextResponse.redirect(new URL('/', req.url));
   }
 
   // Check for roles

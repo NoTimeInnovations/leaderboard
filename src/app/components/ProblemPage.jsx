@@ -1,28 +1,73 @@
 // app/components/ProblemPage.jsx
-import React from 'react';
-import Question from './Question';
-import Progress from './Progress';
-import ProblemTop from './ProblemTop';
-import UploadQuestion from './UploadQuestion';
+import React, { useEffect } from "react";
+import Question from "./Question";
+import Progress from "./Progress";
+import ProblemTop from "./ProblemTop";
+import UploadQuestion from "./UploadQuestion";
+import { useAtom } from "jotai";
+import { Problems } from "@/lib/atom";
+import pb from "@/utils/pocketbase";
 
-const ProblemPage = ({ questions, days, reloadData }) => {
+const ProblemPage = ({ days }) => {
+  const [questions, setQuestions] = useAtom(Problems);
+  const fetcher = async () => {
+    try {
+      const questions = await pb.collection("problems").getFullList();
+      const userId = pb.authStore.model.id;
+      const submissions = await pb
+        .collection("submissions")
+        .getFullList({ filter: `user_Id="${userId}"` });
+
+      const updatedQuestions = questions.map((question) => {
+        const submission = submissions.find(
+          (sub) => sub.problem_Id === question.id
+        );
+        if (submission) {
+          return {
+            ...question,
+            status: submission.status ? "true" : "false",
+            score: submission.status ? submission.score : question.score,
+          };
+        }
+        return question;
+      });
+
+      console.log(updatedQuestions);
+
+      setQuestions(updatedQuestions);
+    } catch (error) {
+      console.log(JSON.stringify(error));
+    }
+  };  
+
+  useEffect(() => {
+    fetcher();
+  }, []);
+
   return (
     <div className="h-screen">
       <ProblemTop />
       <div className="flex md:flex-row w-full p-10 ">
         <div className="w-1/2 mr-4">
-          {questions.map((question, index) => (
-            <div key={index} className="flex items-center justify-center gap-x-5">
+          {questions?.map((question, index) => (
+            <div
+              key={index}
+              className="flex text-white items-center justify-center gap-x-5"
+            >
               {/* index */}
-              <p className="text-xl mb-4 w-10 h-10 border-2 border-black flex items-center justify-center rounded-full">{index + 1}</p>
-              <div className="w-full" >
+              <p className="text-xl mb-4 w-10 h-10 border-2 border-black flex items-center justify-center rounded-full">
+                {index + 1}
+              </p>
+              <div className="w-full">
                 <Question
-                  key={index}
-                  title={question.title}
+                  key={question.id}
+                  title={question.question}
                   description={question.description}
                   score={question.score}
-                  index={index}
+                  index={question.id}
                   problemId={question.id}
+                  category={question.category}
+                  status={question.status ? question.status : "not solved"}
                 />
               </div>
             </div>
@@ -33,7 +78,7 @@ const ProblemPage = ({ questions, days, reloadData }) => {
         </div>
       </div>
       <div className="w-1/4">
-        <UploadQuestion onUploadComplete={reloadData} />
+        <UploadQuestion />
       </div>
     </div>
   );

@@ -11,6 +11,15 @@ const MainPage = () => {
   const [isLogin, setIsLogin] = useState(false);
   const [signupSuccess, setSignupSuccess] = useState(false);
 
+  const changer = () => {
+    setIsSignup(!isSignup);
+    setIsLogin(!isLogin);
+  }
+
+  const closer = () => {
+    setIsLogin(!isLogin);
+  }
+
   const handleSignupSucess = (result) => {
     setSignupSuccess(result);
     setIsSignup(!isSignup);
@@ -67,43 +76,16 @@ const MainPage = () => {
         <Leaderboard />
       </div>
       {isSignup && (
-        <div className="fixed top-0 left-0 w-full h-full bg-white bg-opacity-50 flex items-center justify-center">
-          <div className="w-full max-w-xl p-5 bg-white">
-            <div className="flex w-full justify-between">
-              <div className="text-center text-xl font-bold mb-5">Sign Up</div>
-              <div 
-              onClick={() => {
-                    setIsSignup(!isSignup);
-                }}
-                className="rounded-xl cursor-pointer">
-                Close
-              </div>
-            </div>
-            { (<SignUpForm  handleSignupSucess={handleSignupSucess} />)}
-            <div className="text-center mt-5">
-                Already have an account? <button onClick={() =>{ 
-                    setIsLogin(!isLogin)
-                    setIsSignup(!isSignup)
-                }}>Login</button>
-            </div>
+        <div className="fixed top-0 left-0 w-full h-full  bg-opacity-50 flex items-center justify-center">
+          <div className="w-full max-w-xl p-5 ">
+            { (<SignUpForm handleSignupSucess={handleSignupSucess} changer={changer} closer={closer}  />)}
           </div>
         </div>
       )}
       {isLogin && (
-        <div className="fixed top-0 left-0 w-full h-full bg-white bg-opacity-50 flex items-center justify-center">
-          <div className="w-full max-w-xl p-5 bg-white">
-            <div className="flex w-full justify-between">
-              <div className="text-center text-xl font-bold mb-5">Login</div>
-              <div
-                onClick={() => {
-                    setIsLogin(!isLogin);
-                }}
-                className="rounded-xl cursor-pointer"
-              >
-                Close
-              </div>
-            </div>
-            <LoginForm />
+        <div className="fixed top-0 left-0 w-full h-full  bg-opacity-50 flex items-center justify-center">
+          <div className="w-full max-w-xl p-5 ">
+            <LoginForm closer={closer} changer={changer}/>
           </div>
         </div>
       )}

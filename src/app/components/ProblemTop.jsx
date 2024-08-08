@@ -4,7 +4,7 @@ const ProblemTop = () => {
   return (
     <div>
         <div className="bg-gray-800 p-4 text-white">
-            <div className="text-lg mb-2">Problem Solving</div>
+            <div className="text-2xl mb-2 text-center">Mern Stack</div>
         </div>
     </div>
   )
